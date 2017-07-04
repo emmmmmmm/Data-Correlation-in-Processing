@@ -1,18 +1,26 @@
-//=================================================================
-// a quick sketch to demonstrate correlation in data-sets
-// mouseY sets the period, mouseClick generates new random-datasets
+import processing.core.*; 
+import processing.data.*; 
+import processing.event.*; 
+import processing.opengl.*; 
 
-// white line displays correlation (from +1 to -1 where +1 is highly correlated,
-// and -1 is highly negativly correlated)
-//=================================================================
-// globals
+import java.util.HashMap; 
+import java.util.ArrayList; 
+import java.io.File; 
+import java.io.BufferedReader; 
+import java.io.PrintWriter; 
+import java.io.InputStream; 
+import java.io.OutputStream; 
+import java.io.IOException; 
+
+public class sketch_150703_data_correlation extends PApplet {
+
 int arLength;
 int period   = 15;
 int stepSize = 10;
 float[] ar1;
 float[] ar2;
 //=================================================================
-void setup() {
+public void setup() {
   size(1000, 500);
   arLength = width;
   ar1 = new float[arLength];
@@ -26,8 +34,14 @@ void setup() {
   }
 }
 //=================================================================
-void draw() {
- // frame.setTitle(frameRate+" cps");
+public float Clamp(float val, float min, float max) {
+  if (val<min)return min;
+  else if (val>max)return max;
+  else return val;
+}
+//=================================================================
+public void draw() {
+ // frame.setTitle(""+frameRate);
    float displayScale = width/ar1.length;
   float val = 0;
   float prevVal = 0;
@@ -37,8 +51,8 @@ void draw() {
   stroke(100);
   line(0, height/2, width, height/2);
   strokeWeight(1);
-  line(0, height*0.2, width, height*0.2);
-  line(0, height*0.8, width, height*0.8);
+  line(0, height*0.2f, width, height*0.2f);
+  line(0, height*0.8f, width, height*0.8f);
 
   period = (int)map(mouseY, 0, height, 10, width/4);
   for (int i=1; i<ar1.length; i++) {
@@ -69,7 +83,7 @@ void draw() {
 }
 
 //=================================================================
-float correlation(int i, int period) {
+public float correlation(int i, int period) {
   float retVal=0;
   float sd1 = standardDeviation(ar1, i, period);
   float sd2 = standardDeviation(ar2, i, period);
@@ -84,7 +98,7 @@ float correlation(int i, int period) {
 }
 
 //=================================================================
-float getAverage(float[] ar, int i, int period) {
+public float getAverage(float[] ar, int i, int period) {
   float avg=0;
   for (int p = 0; p < period; p++) {
     avg+=ar[i-p];
@@ -92,7 +106,7 @@ float getAverage(float[] ar, int i, int period) {
   return avg/period;
 }
 //=================================================================
-float standardDeviation(float[] ar, int i, int period) {
+public float standardDeviation(float[] ar, int i, int period) {
   float avg = getAverage(ar, i, period);
 
   float sd = 0;
@@ -104,14 +118,8 @@ float standardDeviation(float[] ar, int i, int period) {
   return sd;
 }
 //=================================================================
-float Clamp(float val, float min, float max) {
-  if (val<min)return min;
-  else if (val>max)return max;
-  else return val;
-}
-//=================================================================
-// new data-sets when mouse pressed
-void mousePressed() {
+// new data-sets
+public void mousePressed() {
   ar1 = new float[arLength];
   ar2 = new float[arLength];
  ar1[0]=height/2;
@@ -122,5 +130,14 @@ void mousePressed() {
 
     ar1[i]=Clamp(ar1[i-1]+random(-stepSize, stepSize), 0, height);
     ar2[i]=Clamp( ar2[i-1]+random(-stepSize, stepSize), 0, height);
+  }
+}
+  static public void main(String[] passedArgs) {
+    String[] appletArgs = new String[] { "sketch_150703_data_correlation" };
+    if (passedArgs != null) {
+      PApplet.main(concat(appletArgs, passedArgs));
+    } else {
+      PApplet.main(appletArgs);
+    }
   }
 }
